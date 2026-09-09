@@ -4,7 +4,8 @@ on:
   schedule:
     # Miércoles y viernes, cada 15 min, de 15:00 a ~19:00 hora Argentina (UTC-3)
     # => 18:00 a 22:00 UTC. GitHub Actions usa UTC siempre.
-    - cron: "*/15 18-22 * * 3,5"
+    - cron: "*/5 * * * *"
+
   workflow_dispatch: {}   # permite correrlo manualmente para probar
 
 permissions:
