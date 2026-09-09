@@ -1,0 +1,43 @@
+name: Check Moodle TT Attendance
+
+on:
+  schedule:
+    # Miércoles y viernes, cada 15 min, de 15:00 a ~19:00 hora Argentina (UTC-3)
+    # => 18:00 a 22:00 UTC. GitHub Actions usa UTC siempre.
+    - cron: "*/15 18-22 * * 3,5"
+  workflow_dispatch: {}   # permite correrlo manualmente para probar
+
+permissions:
+  contents: write   # necesario para guardar el estado (evitar mails duplicados)
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run attendance check
+        env:
+          MOODLE_USER: ${{ secrets.MOODLE_USER }}
+          MOODLE_PASS: ${{ secrets.MOODLE_PASS }}
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL }}
+        run: python check_attendance.py
+
+      - name: Commit state file if changed
+        run: |
+          git config user.name "attendance-watcher-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add state/tt_enabled.flag 2>/dev/null || true
+          git diff --cached --quiet || git commit -m "Update attendance state [skip ci]"
+          git push || true
