@@ -116,6 +116,7 @@ def main() -> int:
 
     was_enabled = read_state()
 
+  
     if enabled_now and not was_enabled:
         send_email(
             subject="✅ Asistencia TT habilitada",
