@@ -1,6 +1,8 @@
 name: Check Moodle TT Attendance
 
 on:
+  schedule:
+    - cron: "*/15 18-22 * * 3,5"
   workflow_dispatch: {}   # Se dispara desde cron-job.org en el horario correcto
 
 permissions:
